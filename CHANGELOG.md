@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-01
+
 ### Removed
 - The **Server control** dropdown. The Start, Stop and Restart buttons replace it.
 
@@ -47,5 +49,6 @@ First public release.
   - A failed login returns 401.
   - A missing permission returns 400.
 
-[Unreleased]: https://github.com/brbk4498/ha-crafty-controller/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/brbk4498/ha-crafty-controller/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/brbk4498/ha-crafty-controller/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/brbk4498/ha-crafty-controller/releases/tag/v1.0.2

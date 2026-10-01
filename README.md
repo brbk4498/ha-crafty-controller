@@ -4,7 +4,7 @@ A custom integration for [Crafty Controller 4](https://craftycontrol.com). Each 
 
 It needs Home Assistant 2026.9 or newer (Python 3.14) and talks to the Crafty v2 API.
 
-**Current version: 1.0.2.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+**Current version: 1.0.3.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 > **Made with AI tools.** This integration was written with the help of AI coding tools (Anthropic's Claude) and reviewed by the repository owner. It is free software provided **as is, without warranty**. It is not affiliated with Crafty Controller, Arcadia Technology, Mojang, Microsoft or Home Assistant. See [NOTICE.md](NOTICE.md) for the full disclaimers, and for how to report code that you believe was copied from your work.
 

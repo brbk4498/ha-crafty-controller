@@ -71,16 +71,6 @@
       "backup": {
         "default": "mdi:backup-restore"
       }
-    },
-    "select": {
-      "control": {
-        "default": "mdi:power",
-        "state": {
-          "running": "mdi:play-circle",
-          "stopped": "mdi:stop-circle",
-          "restart": "mdi:restart"
-        }
-      }
     }
   },
   "services": {

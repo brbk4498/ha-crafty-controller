@@ -92,18 +92,42 @@ Toggle each Home Assistant bus event listed below. All are on by default.
 
 Each entity's unique ID is `<server_id>_<key>`.
 
-**Enabled by default:** each new server shows only two entities, **Server control** and **Running**. Everything else is created but disabled. You can turn entities on in either of two places:
+**Enabled by default:** each new server shows only four entities: the **Start**, **Stop** and **Restart** buttons and **Running**. Everything else is created but disabled. You can turn entities on in either of two places:
 - **Settings → Entities**, one entity at a time
 - **Configure → Per-server settings → Enabled entities**
 
-**Server control** is a single select that combines start, stop and restart:
-- It shows *Running* or *Stopped*.
-- Choosing *Running* starts the server, *Stopped* stops it, and *Restart* restarts it.
-- Stop and restart obey the **Allow stop/restart** safety toggle.
+### Start, Stop and Restart side by side
+
+Home Assistant can't put three buttons inside one entity, but a dashboard card can show them in one row. Edit a dashboard, add a **Manual** card and paste this, replacing `survival` with your server's entity ID prefix:
+
+```yaml
+type: vertical-stack
+cards:
+  - type: tile
+    entity: binary_sensor.survival_running
+  - type: horizontal-stack
+    cards:
+      - type: button
+        entity: button.survival_start
+        name: Start
+        icon: mdi:play
+        tap_action: {action: perform-action, perform_action: button.press, target: {entity_id: button.survival_start}}
+      - type: button
+        entity: button.survival_stop
+        name: Stop
+        icon: mdi:stop
+        tap_action: {action: perform-action, perform_action: button.press, target: {entity_id: button.survival_stop}}
+      - type: button
+        entity: button.survival_restart
+        name: Restart
+        icon: mdi:restart
+        tap_action: {action: perform-action, perform_action: button.press, target: {entity_id: button.survival_restart}}
+```
+
+Stop and Restart obey the **Allow stop/restart** safety toggle.
 
 | Entity | Key | Notes |
 |---|---|---|
-| Server control (select) | `control` | **Enabled by default.** Options are Running, Stopped and Restart. |
 | Running (binary sensor, running) | `running` | **Enabled by default** |
 | Crashed (binary sensor, problem) | `crashed` | |
 | Updating (binary sensor, update) | `updating` | |
@@ -116,7 +140,8 @@ Each entity's unique ID is `<server_id>_<key>`.
 | World size | `world_size` | Data size, shown in MiB |
 | Minecraft version | `version` | Diagnostic. Also used as the device's software version. |
 | MOTD | `motd` | Diagnostic, disabled by default. Colour codes are removed. |
-| Start, Stop, Restart, Backup buttons | `start`, `stop`, `restart`, `backup` | After a press, the integration refreshes that server after 3 seconds. Server control covers start, stop and restart. |
+| Start, Stop, Restart buttons | `start`, `stop`, `restart` | **Enabled by default.** After a press, the integration refreshes that server after 3 seconds. |
+| Backup button | `backup` | |
 | Kill button | `kill` | Disabled by default, and also needs **Allow kill server** |
 | Host CPU usage, Host memory usage | `host_cpu`, `host_memory` | Only when host metrics are enabled. They sit on a separate "host" device. |
 

@@ -52,7 +52,6 @@ async def test_state_mapping(
     assert float(hass.states.get("sensor.survival_world_size").state) == pytest.approx(512.0)
     assert hass.states.get("sensor.survival_minecraft_version").state == "Paper 1.21.4"
     assert hass.states.get("sensor.survival_motd").state == "A Minecraft Server"
-    assert hass.states.get("select.survival_server_control").state == "running"
     assert hass.states.get("button.survival_start").state == "unknown"
 
 

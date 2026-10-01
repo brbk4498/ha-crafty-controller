@@ -165,7 +165,7 @@
         },
         "data_description": {
           "name_override": "Leave empty to use the name from Crafty.",
-          "enabled_entities": "Unticked entities are disabled (not deleted), so their history is kept. New servers start with only Server control and Running.",
+          "enabled_entities": "Unticked entities are disabled (not deleted), so their history is kept. New servers start with only Running and the Start, Stop and Restart buttons.",
           "server_scan_interval": "Seconds between polls for this server. 0 uses the general poll interval.",
           "allow_console_server": "Also requires 'Allow console commands' in Safety."
         }
@@ -232,7 +232,6 @@
     },
     "entity_keys": {
       "options": {
-        "control": "Server control (start/stop/restart)",
         "running": "Running",
         "crashed": "Crashed",
         "updating": "Updating",
@@ -356,16 +355,6 @@
       },
       "backup": {
         "name": "Backup"
-      }
-    },
-    "select": {
-      "control": {
-        "name": "Server control",
-        "state": {
-          "running": "Running",
-          "stopped": "Stopped",
-          "restart": "Restart"
-        }
       }
     }
   },

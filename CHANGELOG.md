@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Removed
+- The **Server control** dropdown. The Start, Stop and Restart buttons replace it.
+
+### Changed
+- New servers now start with the **Start**, **Stop** and **Restart** buttons and **Running** enabled.
+- The README has a dashboard card that shows the three buttons side by side.
+
 ## [1.0.2] - 2026-10-01
 
 First public release.

@@ -74,7 +74,7 @@ from .const import (
 from .coordinator import CraftyConfigEntry
 from .options import CraftyOptions
 
-ENTITY_PLATFORMS = (Platform.SELECT, Platform.BINARY_SENSOR, Platform.SENSOR, Platform.BUTTON)
+ENTITY_PLATFORMS = (Platform.BINARY_SENSOR, Platform.SENSOR, Platform.BUTTON)
 
 AUTH_METHOD_SELECTOR = SelectSelector(
     SelectSelectorConfig(

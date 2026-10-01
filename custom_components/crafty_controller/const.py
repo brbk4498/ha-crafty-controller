@@ -110,10 +110,9 @@ SENSOR_KEYS: Final = (
     "motd",
 )
 BUTTON_KEYS: Final = ("start", "stop", "restart", "kill", "backup")
-SELECT_KEYS: Final = ("control",)
-ALL_SERVER_ENTITY_KEYS: Final = SELECT_KEYS + BINARY_SENSOR_KEYS + SENSOR_KEYS + BUTTON_KEYS
+ALL_SERVER_ENTITY_KEYS: Final = BINARY_SENSOR_KEYS + SENSOR_KEYS + BUTTON_KEYS
 # Only these are enabled for a new server; everything else can be switched on later
-DEFAULT_ENABLED_KEYS: Final = ("control", "running")
+DEFAULT_ENABLED_KEYS: Final = ("running", "start", "stop", "restart")
 DIAGNOSTIC_ENTITY_KEYS: Final = ("version", "motd")
 
 # Delay before refreshing after a button press, so Crafty has time to act

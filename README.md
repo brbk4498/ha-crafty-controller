@@ -4,6 +4,8 @@ A custom integration for [Crafty Controller 4](https://craftycontrol.com). Each 
 
 It needs Home Assistant 2026.9 or newer (Python 3.14) and talks to the Crafty v2 API.
 
+**Current version: 1.0.2.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+
 > **Made with AI tools.** This integration was written with the help of AI coding tools (Anthropic's Claude) and reviewed by the repository owner. It is free software provided **as is, without warranty**. It is not affiliated with Crafty Controller, Arcadia Technology, Mojang, Microsoft or Home Assistant. See [NOTICE.md](NOTICE.md) for the full disclaimers, and for how to report code that you believe was copied from your work.
 
 ## Installation
@@ -13,6 +15,8 @@ It needs Home Assistant 2026.9 or newer (Python 3.14) and talks to the Crafty v2
 1. In HACS, open the menu (⋮) and choose **Custom repositories**.
 2. Add `https://github.com/brbk4498/ha-crafty-controller` and pick the **Integration** category.
 3. Search for **Crafty Controller** in HACS, install it, then restart Home Assistant.
+
+HACS offers updates when a new GitHub release is published, for example `v1.0.3`.
 
 ### Manual
 
@@ -189,6 +193,12 @@ mypy custom_components tests
 ```
 
 Tests use `pytest-homeassistant-custom-component` pinned to Home Assistant 2026.9.4, and they mock all HTTP.
+
+## Releasing a new version
+
+1. Bump `version` in `custom_components/crafty_controller/manifest.json` and in `pyproject.toml`.
+2. Move the items under **Unreleased** in [CHANGELOG.md](CHANGELOG.md) into a new version section.
+3. Commit, then publish a GitHub release tagged `vX.Y.Z` with that changelog section as its notes.
 
 ## License and disclaimers
 

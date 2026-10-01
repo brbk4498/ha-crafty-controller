@@ -1,0 +1,112 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "default": "mdi:server-off",
+        "state": {
+          "on": "mdi:server"
+        }
+      },
+      "crashed": {
+        "default": "mdi:check-circle-outline",
+        "state": {
+          "on": "mdi:alert-octagon"
+        }
+      },
+      "updating": {
+        "default": "mdi:package-variant-closed",
+        "state": {
+          "on": "mdi:package-down"
+        }
+      }
+    },
+    "sensor": {
+      "players_online": {
+        "default": "mdi:account-multiple"
+      },
+      "max_players": {
+        "default": "mdi:account-group"
+      },
+      "player_names": {
+        "default": "mdi:account-details"
+      },
+      "cpu": {
+        "default": "mdi:cpu-64-bit"
+      },
+      "memory_percent": {
+        "default": "mdi:memory"
+      },
+      "memory_used": {
+        "default": "mdi:memory"
+      },
+      "world_size": {
+        "default": "mdi:earth"
+      },
+      "version": {
+        "default": "mdi:minecraft"
+      },
+      "motd": {
+        "default": "mdi:message-text-outline"
+      },
+      "host_cpu": {
+        "default": "mdi:cpu-64-bit"
+      },
+      "host_memory": {
+        "default": "mdi:memory"
+      }
+    },
+    "button": {
+      "start": {
+        "default": "mdi:play"
+      },
+      "stop": {
+        "default": "mdi:stop"
+      },
+      "restart": {
+        "default": "mdi:restart"
+      },
+      "kill": {
+        "default": "mdi:skull-crossbones"
+      },
+      "backup": {
+        "default": "mdi:backup-restore"
+      }
+    },
+    "select": {
+      "control": {
+        "default": "mdi:power",
+        "state": {
+          "running": "mdi:play-circle",
+          "stopped": "mdi:stop-circle",
+          "restart": "mdi:restart"
+        }
+      }
+    }
+  },
+  "services": {
+    "send_command": {
+      "service": "mdi:console"
+    },
+    "get_logs": {
+      "service": "mdi:text-box-search-outline"
+    },
+    "create_task": {
+      "service": "mdi:calendar-plus"
+    },
+    "set_task_enabled": {
+      "service": "mdi:calendar-check"
+    },
+    "delete_task": {
+      "service": "mdi:calendar-remove"
+    },
+    "list_webhooks": {
+      "service": "mdi:webhook"
+    },
+    "create_webhook": {
+      "service": "mdi:webhook"
+    },
+    "delete_webhook": {
+      "service": "mdi:delete"
+    }
+  }
+}

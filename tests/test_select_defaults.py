@@ -1,0 +1,143 @@
+"""Tests for the combined server control and the default-enabled entities."""
+
+from __future__ import annotations
+
+import pytest
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
+
+from custom_components.crafty_controller.const import (
+    ALL_SERVER_ENTITY_KEYS,
+    CONF_ALLOW_STOP_RESTART,
+    CONF_ENABLED_ENTITIES,
+    CONF_SERVER_ID,
+    CONF_SERVERS,
+    DOMAIN,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import entity_registry as er
+
+from .conftest import BASE, SERVER_A, TOKEN_DATA, calls_to, mock_crafty, stats_nested
+
+CONTROL = "select.survival_server_control"
+
+
+@pytest.fixture
+def bare_entry(hass: HomeAssistant) -> MockConfigEntry:
+    """An entry that never opened the options (pure defaults)."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Crafty",
+        unique_id="crafty.test:8443",
+        data=dict(TOKEN_DATA),
+        options={CONF_SERVERS: [SERVER_A]},
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+async def _setup(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+
+async def test_only_control_and_running_by_default(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    bare_entry: MockConfigEntry,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    mock_crafty(aioclient_mock, stats={SERVER_A: stats_nested()})
+    await _setup(hass, bare_entry)
+    visible = {state.entity_id for state in hass.states.async_all()}
+    assert visible == {CONTROL, "binary_sensor.survival_running"}
+    # Everything else exists in the registry, disabled, ready to switch on
+    entries = er.async_entries_for_config_entry(entity_registry, bare_entry.entry_id)
+    assert len(entries) == len(ALL_SERVER_ENTITY_KEYS)
+    disabled = {
+        e.unique_id for e in entries if e.disabled_by is er.RegistryEntryDisabler.INTEGRATION
+    }
+    assert f"{SERVER_A}_cpu" in disabled
+    assert f"{SERVER_A}_start" in disabled
+    assert f"{SERVER_A}_control" not in disabled
+
+
+async def test_user_enabled_entity_survives_reload(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    bare_entry: MockConfigEntry,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    mock_crafty(aioclient_mock, stats={SERVER_A: stats_nested()})
+    await _setup(hass, bare_entry)
+    entity_registry.async_update_entity("sensor.survival_cpu_usage", disabled_by=None)
+    await hass.config_entries.async_reload(bare_entry.entry_id)
+    await hass.async_block_till_done()
+    assert entity_registry.async_get("sensor.survival_cpu_usage").disabled_by is None
+    assert hass.states.get("sensor.survival_cpu_usage").state == "12.5"
+
+
+async def test_options_pretick_matches_registry(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, bare_entry: MockConfigEntry
+) -> None:
+    mock_crafty(aioclient_mock, stats={SERVER_A: stats_nested()})
+    await _setup(hass, bare_entry)
+    result = await hass.config_entries.options.async_init(bare_entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "server_select"}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {CONF_SERVER_ID: SERVER_A}
+    )
+    default = next(k.default() for k in result["data_schema"].schema if k == CONF_ENABLED_ENTITIES)
+    assert default == ["control", "running"]
+
+
+@pytest.mark.parametrize(
+    ("option", "action"),
+    [("running", "start_server"), ("stopped", "stop_server"), ("restart", "restart_server")],
+)
+async def test_control_runs_action(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    bare_entry: MockConfigEntry,
+    option: str,
+    action: str,
+) -> None:
+    mock_crafty(aioclient_mock, stats={SERVER_A: stats_nested(running=False)})
+    await _setup(hass, bare_entry)
+    state = hass.states.get(CONTROL)
+    assert state.state == "stopped"
+    assert state.attributes["options"] == ["running", "stopped", "restart"]
+    path = f"/api/v2/servers/{SERVER_A}/action/{action}"
+    aioclient_mock.post(f"{BASE}{path}", json={"status": "ok"})
+    await hass.services.async_call(
+        "select", "select_option", {"entity_id": CONTROL, "option": option}, blocking=True
+    )
+    assert len(calls_to(aioclient_mock, "post", path)) == 1
+
+
+async def test_control_respects_safety(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, bare_entry: MockConfigEntry
+) -> None:
+    hass.config_entries.async_update_entry(
+        bare_entry, options={**bare_entry.options, CONF_ALLOW_STOP_RESTART: False}
+    )
+    mock_crafty(aioclient_mock, stats={SERVER_A: stats_nested()})
+    await _setup(hass, bare_entry)
+    for option in ("stopped", "restart"):
+        with pytest.raises(ServiceValidationError):
+            await hass.services.async_call(
+                "select", "select_option", {"entity_id": CONTROL, "option": option}, blocking=True
+            )
+    assert hass.states.get(CONTROL).state == "running"
+
+
+async def test_control_unavailable_when_server_unreachable(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, bare_entry: MockConfigEntry
+) -> None:
+    mock_crafty(aioclient_mock, stats={})
+    aioclient_mock.get(f"{BASE}/api/v2/servers/{SERVER_A}/stats", exc=TimeoutError())
+    await _setup(hass, bare_entry)
+    assert hass.states.get(CONTROL) is None or hass.states.get(CONTROL).state == "unavailable"

@@ -1,0 +1,57 @@
+[project]
+name = "ha-crafty-controller"
+version = "0.1.0"
+requires-python = ">=3.14.2"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+  "A", "ASYNC", "B", "BLE", "C4", "D", "E", "F", "FLY", "G", "I", "ICN", "INP", "ISC",
+  "LOG", "N", "PERF", "PGH", "PIE", "PL", "PT", "RET", "RSE", "RUF", "S", "SIM",
+  "SLF", "T20", "TID", "TRY", "UP", "W",
+]
+ignore = [
+  "D202", "D203", "D213", "E501", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+  "TRY003", "TRY400", "BLE001", "S101", "SLF001", "S105", "D401",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "S105", "S106", "PLC0415", "INP001"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["homeassistant"]
+combine-as-imports = true
+split-on-trailing-comma = false
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+disallow_any_generics = true
+plugins = []
+explicit_package_bases = true
+mypy_path = "."
+
+[[tool.mypy.overrides]]
+module = ["pytest_homeassistant_custom_component.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Tests read optional states/registry entries directly; a None there is a test failure anyway.
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_any_generics = false
+disallow_subclassing_any = false
+warn_return_any = false
+disable_error_code = ["union-attr", "arg-type", "index", "misc"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]

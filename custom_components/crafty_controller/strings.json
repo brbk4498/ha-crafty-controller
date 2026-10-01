@@ -1,0 +1,569 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Crafty Controller",
+        "description": "Enter where Home Assistant can reach your Crafty Controller 4 panel.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "verify_ssl": "Verify SSL certificate",
+          "auth_method": "Authentication method"
+        },
+        "data_description": {
+          "host": "Hostname or IP address of the machine running Crafty, without https:// (for example crafty.local).",
+          "port": "The HTTPS port of the Crafty web panel. Crafty uses 8443 unless you changed it.",
+          "verify_ssl": "Leave off for Crafty's default self-signed certificate. Turn on only if Crafty has a certificate Home Assistant trusts.",
+          "auth_method": "Log in with a Crafty username and password, or paste an API token created in Crafty."
+        }
+      },
+      "credentials": {
+        "title": "Crafty login",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "username": "A Crafty user that can see the servers you want to monitor.",
+          "password": "The password for that user. It is stored in Home Assistant and used to get a fresh token when the old one expires."
+        }
+      },
+      "token": {
+        "title": "Crafty API token",
+        "data": {
+          "token": "API token"
+        },
+        "data_description": {
+          "token": "In Crafty, open your user (Panel → Users → your user → API Keys), create a key with the permissions you need, and paste the token here."
+        }
+      },
+      "servers": {
+        "title": "Choose servers",
+        "description": "Crafty reports {count} server(s) this account can access. Pick the ones to add to Home Assistant. You can change this later under Configure → Servers.",
+        "data": {
+          "servers": "Servers"
+        },
+        "data_description": {
+          "servers": "Each selected server becomes a device with sensors, binary sensors and buttons."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with Crafty",
+        "description": "Crafty at {host} rejected the stored login. Enter new details to keep your entities working.",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "token": "API token"
+        },
+        "data_description": {
+          "username": "A Crafty user that can see the servers you want to monitor.",
+          "password": "The password for that user. It is stored in Home Assistant and used to get a fresh token when the old one expires.",
+          "token": "In Crafty, open your user (Panel → Users → your user → API Keys), create a key with the permissions you need, and paste the token here."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Crafty connection",
+        "description": "Change how Home Assistant connects to Crafty. Devices, entity IDs and history are kept.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "verify_ssl": "Verify SSL certificate",
+          "auth_method": "Authentication method"
+        },
+        "data_description": {
+          "host": "Hostname or IP address of the machine running Crafty, without https:// (for example crafty.local).",
+          "port": "The HTTPS port of the Crafty web panel. Crafty uses 8443 unless you changed it.",
+          "verify_ssl": "Leave off for Crafty's default self-signed certificate. Turn on only if Crafty has a certificate Home Assistant trusts.",
+          "auth_method": "Log in with a Crafty username and password, or paste an API token created in Crafty."
+        }
+      },
+      "reconfigure_credentials": {
+        "title": "Crafty login",
+        "description": "Leave the password empty to keep the stored one.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "username": "A Crafty user that can see the servers you want to monitor.",
+          "password": "The password for that user. It is stored in Home Assistant and used to get a fresh token when the old one expires."
+        }
+      },
+      "reconfigure_token": {
+        "title": "Crafty API token",
+        "description": "Leave empty to keep the stored token.",
+        "data": {
+          "token": "API token"
+        },
+        "data_description": {
+          "token": "In Crafty, open your user (Panel → Users → your user → API Keys), create a key with the permissions you need, and paste the token here."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach Crafty. Check the host and port, that Crafty is running, and that Home Assistant can reach it on your network.",
+      "invalid_auth": "Crafty rejected the login or token.",
+      "already_configured": "Another Crafty entry already uses this host and port.",
+      "unknown": "Unexpected error. Check the Home Assistant log for details."
+    },
+    "abort": {
+      "already_configured": "This Crafty instance is already configured.",
+      "reauth_successful": "Re-authentication was successful.",
+      "reconfigure_successful": "Reconfiguration was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Crafty Controller options",
+        "description": "Pick a section. Saving a section applies it immediately.",
+        "menu_options": {
+          "general": "General",
+          "servers": "Servers",
+          "server_select": "Per-server settings",
+          "safety": "Safety",
+          "events": "Events",
+          "advanced": "Advanced"
+        }
+      },
+      "general": {
+        "title": "General",
+        "data": {
+          "scan_interval": "Poll interval",
+          "timeout": "Request timeout",
+          "retry_on_403": "Log in again when the token expires",
+          "unreachable_minutes": "Report Crafty as unreachable after"
+        },
+        "data_description": {
+          "scan_interval": "How often to fetch server stats (10–300 seconds).",
+          "timeout": "How long to wait for Crafty before a request fails (5–60 seconds).",
+          "retry_on_403": "With username/password login, transparently log in again and retry once when Crafty answers 403.",
+          "unreachable_minutes": "Create a repair issue when Crafty has been unreachable this long."
+        }
+      },
+      "servers": {
+        "title": "Servers",
+        "description": "The list is fetched from Crafty each time you open this step, so new servers appear here. Unselecting a server removes its device and entities.",
+        "data": {
+          "servers": "Monitored servers"
+        }
+      },
+      "server_select": {
+        "title": "Per-server settings",
+        "description": "Choose the server to configure.",
+        "data": {
+          "server_id": "Server"
+        }
+      },
+      "server_settings": {
+        "title": "Settings for {server}",
+        "data": {
+          "name_override": "Display name",
+          "enabled_entities": "Enabled entities",
+          "server_scan_interval": "Poll interval override",
+          "allow_console_server": "Allow console commands for this server"
+        },
+        "data_description": {
+          "name_override": "Leave empty to use the name from Crafty.",
+          "enabled_entities": "Unticked entities are disabled (not deleted), so their history is kept. New servers start with only Server control and Running.",
+          "server_scan_interval": "Seconds between polls for this server. 0 uses the general poll interval.",
+          "allow_console_server": "Also requires 'Allow console commands' in Safety."
+        }
+      },
+      "safety": {
+        "title": "Safety",
+        "data": {
+          "allow_kill": "Allow kill server",
+          "allow_stop_restart": "Allow stop and restart",
+          "allow_console": "Allow console commands"
+        },
+        "data_description": {
+          "allow_kill": "Kill ends the Java process immediately and can corrupt the world. Off by default.",
+          "allow_stop_restart": "Lets buttons, services and scheduled tasks stop or restart servers.",
+          "allow_console": "Lets the send_command service and command tasks run console commands."
+        }
+      },
+      "events": {
+        "title": "Events",
+        "description": "Fire these events on the Home Assistant event bus by comparing consecutive polls. Short sessions between two polls can be missed.",
+        "data": {
+          "server_started": "Server started",
+          "server_stopped": "Server stopped",
+          "server_crashed": "Server crashed",
+          "player_joined": "Player joined",
+          "player_left": "Player left"
+        }
+      },
+      "advanced": {
+        "title": "Advanced",
+        "data": {
+          "enable_tasks": "Scheduled task services",
+          "enable_webhooks": "Webhook services",
+          "enable_logs": "Log service",
+          "enable_host_metrics": "Host CPU and memory sensors",
+          "enable_diagnostic_entities": "Diagnostic entities",
+          "debug_logging": "Debug logging"
+        },
+        "data_description": {
+          "enable_tasks": "Enables create_task, set_task_enabled and delete_task.",
+          "enable_webhooks": "Enables list_webhooks, create_webhook and delete_webhook.",
+          "enable_logs": "Enables get_logs.",
+          "enable_host_metrics": "Reads /metrics/host. Needs a Crafty account with global access; it switches itself off if Crafty refuses.",
+          "enable_diagnostic_entities": "Minecraft version and MOTD sensors.",
+          "debug_logging": "Raises only this integration's log level to debug. Tokens and passwords are never logged."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach Crafty to refresh the server list; showing the servers already configured.",
+      "invalid_auth": "Crafty rejected the stored login.",
+      "unknown": "Unexpected error. Check the Home Assistant log."
+    },
+    "abort": {
+      "no_servers": "No servers are monitored yet. Add one under Servers first."
+    }
+  },
+  "selector": {
+    "auth_method": {
+      "options": {
+        "credentials": "Username and password",
+        "token": "API token"
+      }
+    },
+    "entity_keys": {
+      "options": {
+        "control": "Server control (start/stop/restart)",
+        "running": "Running",
+        "crashed": "Crashed",
+        "updating": "Updating",
+        "players_online": "Players online",
+        "max_players": "Max players",
+        "player_names": "Player names",
+        "cpu": "CPU usage",
+        "memory_percent": "Memory usage",
+        "memory_used": "Memory used",
+        "world_size": "World size",
+        "version": "Minecraft version",
+        "motd": "MOTD",
+        "start": "Start button",
+        "stop": "Stop button",
+        "restart": "Restart button",
+        "kill": "Kill button",
+        "backup": "Backup button"
+      }
+    },
+    "task_action": {
+      "options": {
+        "command": "Console command",
+        "start_server": "Start server",
+        "stop_server": "Stop server",
+        "restart_server": "Restart server",
+        "kill_server": "Kill server",
+        "backup_server": "Back up server"
+      }
+    },
+    "task_interval_type": {
+      "options": {
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "days": "Days",
+        "reaction": "After another task (reaction)",
+        "cron": "Cron expression"
+      }
+    },
+    "webhook_trigger": {
+      "options": {
+        "start_server": "Server started",
+        "stop_server": "Server stopped",
+        "crash_detected": "Crash detected",
+        "backup_server": "Backup",
+        "jar_update": "Executable update",
+        "send_command": "Command sent",
+        "kill": "Server killed"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Running"
+      },
+      "crashed": {
+        "name": "Crashed"
+      },
+      "updating": {
+        "name": "Updating"
+      }
+    },
+    "sensor": {
+      "players_online": {
+        "name": "Players online",
+        "unit_of_measurement": "players"
+      },
+      "max_players": {
+        "name": "Max players",
+        "unit_of_measurement": "players"
+      },
+      "player_names": {
+        "name": "Player names",
+        "unit_of_measurement": "players",
+        "state_attributes": {
+          "players": {
+            "name": "Players"
+          },
+          "player_names": {
+            "name": "Player names"
+          }
+        }
+      },
+      "cpu": {
+        "name": "CPU usage"
+      },
+      "memory_percent": {
+        "name": "Memory usage"
+      },
+      "memory_used": {
+        "name": "Memory used"
+      },
+      "world_size": {
+        "name": "World size"
+      },
+      "version": {
+        "name": "Minecraft version"
+      },
+      "motd": {
+        "name": "MOTD"
+      },
+      "host_cpu": {
+        "name": "Host CPU usage"
+      },
+      "host_memory": {
+        "name": "Host memory usage"
+      }
+    },
+    "button": {
+      "start": {
+        "name": "Start"
+      },
+      "stop": {
+        "name": "Stop"
+      },
+      "restart": {
+        "name": "Restart"
+      },
+      "kill": {
+        "name": "Kill"
+      },
+      "backup": {
+        "name": "Backup"
+      }
+    },
+    "select": {
+      "control": {
+        "name": "Server control",
+        "state": {
+          "running": "Running",
+          "stopped": "Stopped",
+          "restart": "Restart"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "cannot_connect": {
+      "message": "Cannot reach Crafty: {error}"
+    },
+    "invalid_auth": {
+      "message": "Crafty rejected the login or token. Re-authenticate the integration."
+    },
+    "kill_blocked": {
+      "message": "Killing {server} is blocked. Turn on 'Allow kill server' in the Crafty Controller options (Safety)."
+    },
+    "stop_restart_blocked": {
+      "message": "Stopping or restarting {server} is blocked. Turn on 'Allow stop and restart' in the Crafty Controller options (Safety)."
+    },
+    "console_blocked": {
+      "message": "Console commands for {server} are blocked. Turn them on in the Crafty Controller options (Safety, and the server's own settings)."
+    },
+    "feature_disabled": {
+      "message": "The {feature} feature is turned off. Enable it in the Crafty Controller options (Advanced)."
+    },
+    "action_failed": {
+      "message": "Crafty could not run {action}: {error}"
+    },
+    "request_failed": {
+      "message": "Crafty request failed: {error}"
+    },
+    "no_target": {
+      "message": "No monitored Crafty server matches the selected target."
+    },
+    "command_required": {
+      "message": "A command is required when the task action is 'command'."
+    },
+    "cron_required": {
+      "message": "A cron string is required when the interval type is 'cron'."
+    }
+  },
+  "issues": {
+    "unreachable": {
+      "title": "Crafty Controller is unreachable",
+      "description": "Home Assistant has not been able to reach Crafty at {url} for {entry_title} for more than {minutes} minutes. Check that Crafty is running, the host and port are right (Reconfigure), and that Home Assistant's network can reach it. This issue clears itself once Crafty answers again."
+    },
+    "auth_failed": {
+      "title": "Crafty Controller login failing",
+      "description": "Crafty keeps rejecting the login for {entry_title}. Open Settings → Devices & services → Crafty Controller and re-authenticate, or create a new API token in Crafty."
+    },
+    "server_not_found": {
+      "title": "Crafty server not found",
+      "description": "The server {server} on {entry_title} is no longer available to this account (it was deleted or permissions changed). Its entities are unavailable. Remove it under Configure → Servers if it is gone for good."
+    },
+    "new_servers": {
+      "title": "New Crafty servers available",
+      "description": "Crafty on {entry_title} has servers that are not monitored yet: {servers}. To add them, open Settings → Devices & services → Crafty Controller → Configure → Servers."
+    }
+  },
+  "services": {
+    "send_command": {
+      "name": "Send console command",
+      "description": "Sends a console command to Crafty servers. A leading slash is removed.",
+      "fields": {
+        "command": {
+          "name": "Command",
+          "description": "The console command, for example 'say Hello' or 'whitelist add Steve'."
+        }
+      }
+    },
+    "get_logs": {
+      "name": "Get logs",
+      "description": "Returns recent console log lines. Requires 'Log service' in Advanced options.",
+      "fields": {
+        "lines": {
+          "name": "Lines",
+          "description": "How many of the most recent lines to return."
+        },
+        "from_file": {
+          "name": "Read log file",
+          "description": "Read latest.log instead of Crafty's console buffer."
+        }
+      }
+    },
+    "create_task": {
+      "name": "Create scheduled task",
+      "description": "Creates a Crafty schedule. Requires 'Scheduled task services' in Advanced options.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name of the schedule."
+        },
+        "action": {
+          "name": "Action",
+          "description": "What the schedule does."
+        },
+        "command": {
+          "name": "Command",
+          "description": "Console command, used when the action is 'command'."
+        },
+        "interval": {
+          "name": "Interval",
+          "description": "Run every N units of the interval type."
+        },
+        "interval_type": {
+          "name": "Interval type",
+          "description": "Unit for the interval, 'reaction' to chain after another task, or 'cron' to use the cron string."
+        },
+        "cron_string": {
+          "name": "Cron string",
+          "description": "Cron expression, used when the interval type is 'cron'."
+        },
+        "one_time": {
+          "name": "One time",
+          "description": "Delete the schedule after it runs once."
+        },
+        "delay": {
+          "name": "Delay",
+          "description": "Seconds to wait before running (for reaction tasks)."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Create the schedule enabled."
+        }
+      }
+    },
+    "set_task_enabled": {
+      "name": "Enable or disable scheduled task",
+      "description": "Enables or disables a Crafty schedule.",
+      "fields": {
+        "task_id": {
+          "name": "Task ID",
+          "description": "The schedule ID from Crafty."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Turn the schedule on or off."
+        }
+      }
+    },
+    "delete_task": {
+      "name": "Delete scheduled task",
+      "description": "Deletes a Crafty schedule.",
+      "fields": {
+        "task_id": {
+          "name": "Task ID",
+          "description": "The schedule ID from Crafty."
+        }
+      }
+    },
+    "list_webhooks": {
+      "name": "List webhooks",
+      "description": "Returns the webhooks configured on Crafty servers. Requires 'Webhook services' in Advanced options."
+    },
+    "create_webhook": {
+      "name": "Create webhook",
+      "description": "Creates a Crafty webhook.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name of the webhook."
+        },
+        "webhook_type": {
+          "name": "Type",
+          "description": "Which service the webhook posts to."
+        },
+        "url": {
+          "name": "URL",
+          "description": "The webhook URL."
+        },
+        "triggers": {
+          "name": "Triggers",
+          "description": "Crafty events that fire the webhook."
+        },
+        "bot_name": {
+          "name": "Bot name",
+          "description": "Name shown as the sender."
+        },
+        "body": {
+          "name": "Message",
+          "description": "Message text."
+        },
+        "color": {
+          "name": "Color",
+          "description": "Embed color (hex)."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Create the webhook enabled."
+        }
+      }
+    },
+    "delete_webhook": {
+      "name": "Delete webhook",
+      "description": "Deletes a Crafty webhook.",
+      "fields": {
+        "webhook_id": {
+          "name": "Webhook ID",
+          "description": "The webhook ID from list_webhooks."
+        }
+      }
+    }
+  }
+}

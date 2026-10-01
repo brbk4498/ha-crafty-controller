@@ -1,0 +1,197 @@
+send_command:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    command:
+      required: true
+      example: "say Hello from Home Assistant"
+      selector:
+        text:
+
+get_logs:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    lines:
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box
+    from_file:
+      default: false
+      selector:
+        boolean:
+
+create_task:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    name:
+      required: true
+      example: "Nightly restart"
+      selector:
+        text:
+    action:
+      required: true
+      default: command
+      selector:
+        select:
+          translation_key: task_action
+          options:
+            - command
+            - start_server
+            - stop_server
+            - restart_server
+            - kill_server
+            - backup_server
+    command:
+      example: "say Restarting in 5 minutes"
+      selector:
+        text:
+    interval:
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 10000
+          mode: box
+    interval_type:
+      default: hours
+      selector:
+        select:
+          translation_key: task_interval_type
+          options:
+            - minutes
+            - hours
+            - days
+            - reaction
+            - cron
+    cron_string:
+      example: "0 4 * * *"
+      selector:
+        text:
+    one_time:
+      default: false
+      selector:
+        boolean:
+    delay:
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: s
+          mode: box
+    enabled:
+      default: true
+      selector:
+        boolean:
+
+set_task_enabled:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    task_id:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+    enabled:
+      required: true
+      default: true
+      selector:
+        boolean:
+
+delete_task:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    task_id:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+
+list_webhooks:
+  target:
+    entity:
+      integration: crafty_controller
+
+create_webhook:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    name:
+      required: true
+      selector:
+        text:
+    webhook_type:
+      required: true
+      default: Discord
+      selector:
+        select:
+          options:
+            - Discord
+            - Mattermost
+            - Slack
+            - Teams
+    url:
+      required: true
+      selector:
+        text:
+          type: url
+    triggers:
+      required: true
+      selector:
+        select:
+          multiple: true
+          translation_key: webhook_trigger
+          options:
+            - start_server
+            - stop_server
+            - crash_detected
+            - backup_server
+            - jar_update
+            - send_command
+            - kill
+    bot_name:
+      default: Crafty Controller
+      selector:
+        text:
+    body:
+      selector:
+        text:
+          multiline: true
+    color:
+      default: "#005cd1"
+      selector:
+        text:
+    enabled:
+      default: true
+      selector:
+        boolean:
+
+delete_webhook:
+  target:
+    entity:
+      integration: crafty_controller
+  fields:
+    webhook_id:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box

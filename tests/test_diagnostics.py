@@ -8,7 +8,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.crafty_controller import async_remove_config_entry_device
-from custom_components.crafty_controller.const import CONF_SERVERS, DOMAIN
+from custom_components.crafty_controller.const import CONF_SERVER_SETTINGS, CONF_SERVERS, DOMAIN
 from custom_components.crafty_controller.diagnostics import async_get_config_entry_diagnostics
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -31,7 +31,7 @@ async def test_diagnostics_redacts_secrets(
     assert diag["servers"][SERVER_A]["stats"]["running"] is True
 
 
-async def test_remove_device_only_when_unmonitored(
+async def test_remove_device_stops_monitoring(
     hass: HomeAssistant,
     crafty: AiohttpClientMocker,
     token_entry: MockConfigEntry,
@@ -42,6 +42,33 @@ async def test_remove_device_only_when_unmonitored(
     device = device_registry.async_get_device_by_identifier(
         (DOMAIN, SERVER_B), token_entry.entry_id
     )
-    assert not await async_remove_config_entry_device(hass, token_entry, device)
-    hass.config_entries.async_update_entry(token_entry, options={CONF_SERVERS: [SERVER_A]})
     assert await async_remove_config_entry_device(hass, token_entry, device)
+    assert token_entry.options[CONF_SERVERS] == [SERVER_A]
+    assert SERVER_B not in token_entry.options[CONF_SERVER_SETTINGS]
+    await hass.async_block_till_done()
+
+
+async def test_delete_device_from_ui(
+    hass: HomeAssistant,
+    crafty: AiohttpClientMocker,
+    token_entry: MockConfigEntry,
+    device_registry: dr.DeviceRegistry,
+) -> None:
+    """Deleting a server device through the registry is accepted and stays deleted."""
+    await hass.config_entries.async_setup(token_entry.entry_id)
+    await hass.async_block_till_done()
+    device = device_registry.async_get_device_by_identifier(
+        (DOMAIN, SERVER_B), token_entry.entry_id
+    )
+    assert await async_remove_config_entry_device(hass, token_entry, device)
+    device_registry.async_remove_device(device.id)
+    await hass.async_block_till_done()
+    assert (
+        device_registry.async_get_device_by_identifier((DOMAIN, SERVER_B), token_entry.entry_id)
+        is None
+    )
+    assert (
+        device_registry.async_get_device_by_identifier((DOMAIN, SERVER_A), token_entry.entry_id)
+        is not None
+    )
+    assert hass.states.get("binary_sensor.creative_running") is None

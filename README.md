@@ -4,7 +4,7 @@ A custom integration for [Crafty Controller 4](https://craftycontrol.com). Each 
 
 It needs Home Assistant 2026.9 or newer (Python 3.14) and talks to the Crafty v2 API.
 
-**Current version: 1.0.3.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+**Current version: 1.0.4.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 > **Made with AI tools.** This integration was written with the help of AI coding tools (Anthropic's Claude) and reviewed by the repository owner. It is free software provided **as is, without warranty**. It is not affiliated with Crafty Controller, Arcadia Technology, Mojang, Microsoft or Home Assistant. See [NOTICE.md](NOTICE.md) for the full disclaimers, and for how to report code that you believe was copied from your work.
 
@@ -16,7 +16,7 @@ It needs Home Assistant 2026.9 or newer (Python 3.14) and talks to the Crafty v2
 2. Add `https://github.com/brbk4498/ha-crafty-controller` and pick the **Integration** category.
 3. Search for **Crafty Controller** in HACS, install it, then restart Home Assistant.
 
-HACS offers updates when a new GitHub release is published, for example `v1.0.3`.
+HACS offers updates when a new GitHub release is published, for example `v1.0.4`.
 
 ### Manual
 
@@ -57,7 +57,7 @@ Open **Settings → Devices & services → Crafty Controller → Configure**. Ea
 - **Report Crafty as unreachable after:** how many minutes without contact before a repair issue is created. The default is 15.
 
 ### Servers
-Add or remove monitored servers. The list is fetched from Crafty every time you open this step, so newly created servers show up. Unticking a server removes its device and entities.
+Add or remove monitored servers. The list is fetched from Crafty every time you open this step, so newly created servers show up. Unticking a server removes its device and entities. Deleting a server device from its device page does the same.
 
 ### Per-server settings
 Pick a server, then set:

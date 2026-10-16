@@ -27,6 +27,8 @@ from .const import (
     ALL_SERVER_ENTITY_KEYS,
     AUTH_METHOD_CREDENTIALS,
     CONF_AUTH_METHOD,
+    CONF_SERVER_SETTINGS,
+    CONF_SERVERS,
     CONF_TOKEN,
     DIAGNOSTIC_ENTITY_KEYS,
     DOMAIN,
@@ -95,12 +97,28 @@ async def async_unload_entry(hass: HomeAssistant, entry: CraftyConfigEntry) -> b
 async def async_remove_config_entry_device(
     hass: HomeAssistant, entry: CraftyConfigEntry, device_entry: dr.DeviceEntry
 ) -> bool:
-    """Allow removing a device only when its server is no longer monitored."""
+    """Stop monitoring a server when its device is deleted from the UI."""
     server_ids = {
         identifier[1] for identifier in device_entry.identifiers if identifier[0] == DOMAIN
     }
-    monitored = set(CraftyOptions.from_entry_options(entry.options).servers)
-    return not server_ids & monitored
+    servers = list(entry.options.get(CONF_SERVERS, []))
+    removed = server_ids & set(servers)
+    if removed:
+        settings = {
+            server_id: value
+            for server_id, value in entry.options.get(CONF_SERVER_SETTINGS, {}).items()
+            if server_id not in removed
+        }
+        hass.config_entries.async_update_entry(
+            entry,
+            options={
+                **entry.options,
+                CONF_SERVERS: [sid for sid in servers if sid not in removed],
+                CONF_SERVER_SETTINGS: settings,
+            },
+        )
+        hass.config_entries.async_schedule_reload(entry.entry_id)
+    return True
 
 
 def _apply_debug_logging(hass: HomeAssistant, options: CraftyOptions) -> None:
